@@ -6,7 +6,7 @@ const LandingPageGreating = () => {
 return (
   <div style={{color: "#ffffff"}}>
     <div className="title">
-      <h>ProBudgetizer</h>
+      <h3>ProBudgetizer</h3>
     </div>
     <div className="msg">
       <h className="msg-text">Manage projects with your friends and family. While having fun. For free.</h>

@@ -1,23 +1,23 @@
-import { withStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import React from "react";
-import styled from "styled-components";
+import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import React, { useEffect } from 'react'
+import styled from 'styled-components'
 
 const WhiteTextTypography = withStyles({
   root: {
-    color: "#FFFFFF",
-  },
-})(Typography);
+    color: '#FFFFFF'
+  }
+})(Typography)
 
 const NavItem = ({ isActive, text }) => (
   <NavItemWrapper isActive={isActive}>
     <WhiteTextTypography variant="h6">{text}</WhiteTextTypography>
   </NavItemWrapper>
-);
+)
 
 const ProjectPanelItem = ({ children }) => (
   <div style={{ flex: 1 }}>{children}</div>
-);
+)
 
 const ProjectPanel = ({
   projectName,
@@ -25,7 +25,7 @@ const ProjectPanel = ({
   tasksDone,
   peopleAmout,
   status,
-  tags,
+  tags
 }) => (
   <Panel>
     <ProjectPanelItem>
@@ -50,13 +50,18 @@ const ProjectPanel = ({
       <Typography variant="ingress">Status</Typography>
     </ProjectPanelItem>
   </Panel>
-);
+)
 
 const Projects = () => {
+  useEffect(() => {
+    fetch('/projects')
+      .then((res) => res.json())
+      .then((login) => this.setState({ login }))
+  })
   return (
     <MainWrapper>
       <LeftPanel>
-        <WhiteTextTypography style={{ paddingLeft: "40px" }} variant="h5">
+        <WhiteTextTypography style={{ paddingLeft: '40px' }} variant="h5">
           ProBudgetizer
         </WhiteTextTypography>
 
@@ -111,33 +116,33 @@ const Projects = () => {
         />
       </RightPanel>
     </MainWrapper>
-  );
-};
+  )
+}
 
-export default Projects;
+export default Projects
 
 const MainWrapper = styled.div`
   display: flex;
   background-color: lightblue;
   height: 100vh;
   width: 100vw;
-`;
+`
 
 const LeftPanel = styled.div`
   background-color: #5b7cfd;
   padding-top: 40px;
   width: 250px;
-`;
+`
 
 const RightPanel = styled.div`
   background-color: #e7eef7;
   flex: 1;
   padding-left: 100px;
   padding-top: 40px;
-`;
+`
 
 const NavItemWrapper = styled.div`
-  background-color: ${(props) => (props.isActive ? "#2854ff" : undefined)};
+  background-color: ${(props) => (props.isActive ? '#2854ff' : undefined)};
   height: 70px;
   padding-left: 40px;
   display: flex;
@@ -148,12 +153,12 @@ const NavItemWrapper = styled.div`
     background-color: #2854ff;
     cursor: pointer;
   }
-`;
+`
 
 const Gutter = styled.div`
   height: 50px;
   width: auto;
-`;
+`
 
 const Panel = styled.div`
   margin-bottom: 20px;
@@ -168,4 +173,4 @@ const Panel = styled.div`
   &:hover {
     cursor: pointer;
   }
-`;
+`

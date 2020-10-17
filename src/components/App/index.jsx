@@ -1,33 +1,22 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import SignInSide from "../SignInSide";
 import Projects from "../Projects";
-import RegisterPage from "../RegisterPage"
+import Register from "../Register"
 
 const App = () => {
   return (
     <Router>
       <div>
-        {/* <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/projects">Projects</Link>
-            </li>
-          </ul>
-        </nav> */}
-
         <Switch>
           <Route path="/projects">
             <Projects />
           </Route>
-          <Route path="/">
+          <Route path="/login">
             <SignInSide />
           </Route>
-          <Route path="/register-page">
-            <RegisterPage />
+          <Route path="/register">
+            <Register />
           </Route>
         </Switch>
       </div>
