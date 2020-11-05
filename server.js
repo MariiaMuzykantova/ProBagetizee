@@ -1,26 +1,34 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const keys = require('./config/keys')
+require("dotenv").config();
+const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
 
-const itemRoutes = require('./routes/items')
+const connectDB = require("./config/db");
+
+const itemRoutes = require("./routes/items");
+const userRoutes = require("./routes/userRoute");
+
+const port = process.env.PORT || 5000;
+console.log("current ENV: ", process.env.NODE_ENV);
 
 const app = express();
 
-const port = process.env.PORT || 5000
+// Bodyparser middleware (it is included in express)
+app.use(express.json());
 
-// Bodyparser middleware (it is actually nowadays included in express)
-app.use(express.json())
+// Logging
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
-// DB config
-const db = keys.MONGO_URI
+// CORS middleware
+app.use(cors());
 
 // Connect to mongo
-mongoose
-    .connect(db)
-    .then(() => console.log("db connected"))
-    .catch(error => console.log(error))
+connectDB();
 
 // Use routes
-app.use('/api/items', itemRoutes)
+app.use("/api/items", itemRoutes);
+app.use("/user", userRoutes);
 
-app.listen(port, () => console.log(`server running on port ${port}`))
+app.listen(port, () => console.log(`server running on port ${port}`));
