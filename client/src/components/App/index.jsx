@@ -12,9 +12,11 @@ const App = () => {
           <Route path="/projects">
             <Projects />
           </Route>
+
           <Route path="/login">
             <SignInSide />
           </Route>
+          
           <Route path="/register">
             <Register />
           </Route>

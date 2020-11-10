@@ -2,6 +2,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import test from '../../calls/config'
 
 const WhiteTextTypography = withStyles({
   root: {
@@ -54,10 +55,9 @@ const ProjectPanel = ({
 
 const Projects = () => {
   useEffect(() => {
-    fetch('/projects')
-      .then((res) => res.json())
-      .then((login) => this.setState({ login }))
-  })
+    console.log(test())
+
+  }, [])
   return (
     <MainWrapper>
       <LeftPanel>
@@ -114,6 +114,7 @@ const Projects = () => {
           peopleAmout={7}
           status="In progress"
         />
+
       </RightPanel>
     </MainWrapper>
   )
