@@ -1,4 +1,9 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
+import Axios from "axios"
+import { useHistory } from "react-router-dom"
+import UserContext from "../../context/userContext"
+
+import Alert from '@material-ui/lab/Alert'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -40,14 +45,40 @@ const useStyles = makeStyles((theme) => ({
 
 const Register = () => {
   const classes = useStyles({})
-  const [formData, setFormData] = React.useState({
-    firstName: '',
-    lastName: '',
+  const history = useHistory()
+  const [error, setError] = useState();
+  const { setUserData } = useContext(UserContext)
+  const [formData, setFormData] = useState({
+    username: '',
     email: '',
-    password: ''
+    password: '',
+    passwordCheck: ''
   })
   const [submitting, setSubmitting] = React.useState(false)
-
+  const submit = async (e) => {
+    e.preventDefault()
+    try {
+      const newUser = formData
+      await Axios.post(
+        "http://localhost:5000/user/register",
+        newUser
+      )
+      const loginRes = await Axios.post("http://localhost:5000/user/login", {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        passwordCheck: formData.passwordCheck
+      })
+      setUserData({
+        token: loginRes.data.token,
+        user: loginRes.data.user
+      })
+      localStorage.setItem("auth-token", loginRes.data.token)
+      history.push("/projects")
+    } catch (err) {
+      err.response.data.message && setError(err.response.data.message);
+    }
+  }
   return (
     <main className={classes.layout}>
       <Paper className={classes.paper} elevation={2}>
@@ -60,32 +91,20 @@ const Register = () => {
             Register
           </Typography>
         </Box>
+        {error && <Alert severity="error">{error}</Alert>}
         <form method="post" className={classes.form} noValidate>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="firstName"
-            label="First Name"
-            name="firstName"
+            id="username"
+            label="User Name"
+            name="username"
             autoComplete="fname"
             autoFocus
-            defaultValue={formData.firstName}
+            defaultValue={formData.username}
             onChange={(e) =>
-              setFormData({ ...formData, firstName: e.target.value })
-            }
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="lastName"
-            label="Last Name"
-            name="lastName"
-            autoComplete="lname"
-            defaultValue={formData.lastName}
-            onChange={(e) =>
-              setFormData({ ...formData, lastName: e.target.value })
+              setFormData({ ...formData, username: e.target.value })
             }
           />
           <TextField
@@ -115,6 +134,20 @@ const Register = () => {
               setFormData({ ...formData, password: e.target.value })
             }
           />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="passwordCheck"
+            label="Password Check"
+            type="password"
+            id="passwordCheck"
+            autoComplete="passwordCheck"
+            defaultValue={formData.passwordCheck}
+            onChange={(e) =>
+              setFormData({ ...formData, passwordCheck: e.target.value })
+            }
+          />
           <Box mb={6}>
             <Button
               disabled={submitting}
@@ -122,7 +155,8 @@ const Register = () => {
               fullWidth
               variant="contained"
               color="primary"
-              className={classes.submit}>
+              className={classes.submit}
+              onClick={submit}>
               {submitting && (
                 <CircularProgress
                   size={24}

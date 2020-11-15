@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useContext } from 'react'
+import UserContext from "../../context/userContext"
+import Axios from "axios"
+import { useHistory, Link } from 'react-router-dom'
 
 import { makeStyles } from '@material-ui/core/styles'
+import Alert from '@material-ui/lab/Alert'
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -49,8 +52,26 @@ const useStyles = makeStyles((theme) => ({
 const SignInSide = () => {
   const classes = useStyles({})
   const [formData, setFormData] = React.useState({ email: '', password: '' })
+  const [error, setError] = useState();
   const [submitting, setSubmitting] = React.useState(false)
+  const { setUserData } = useContext(UserContext)
+  const history = useHistory()
 
+  const submit = async (e) => {
+    e.preventDefault()
+    try {
+      const loginUser = formData
+      const loginRes = await Axios.post("http://localhost:5000/user/login", loginUser)
+      setUserData({
+        token: loginRes.data.token,
+        user: loginRes.data.user
+      })
+      localStorage.setItem("auth-token", loginRes.data.token)
+      history.push("/projects")
+    } catch (err) {
+      err.response.data.message && setError(err.response.data.message);
+    }
+  }
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -71,6 +92,7 @@ const SignInSide = () => {
               Log in to your account dashboard
             </Typography>
           </Box>
+          {error && <Alert severity="error">{error}</Alert>}
           <form method="post" className={classes.form} noValidate>
             <TextField
               margin="normal"
@@ -100,25 +122,24 @@ const SignInSide = () => {
                 setFormData({ ...formData, password: e.target.value })
               }
             />
-            <Link to={'./projects'}>
-              <Box mb={6}>
-                <Button
-                  disabled={submitting}
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}>
-                  {submitting && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.buttonProgress}
-                    />
-                  )}
-                  {submitting ? 'Signing in...' : 'Sign In'}
-                </Button>
-              </Box>
-            </Link>
+            <Box mb={6}>
+              <Button
+                disabled={submitting}
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={submit}>
+                {submitting && (
+                  <CircularProgress
+                    size={24}
+                    className={classes.buttonProgress}
+                  />
+                )}
+                {submitting ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </Box>
             <Grid container>
               <Grid item xs>
                 <Link to={'./forgot-password'}>Forgot password?</Link>

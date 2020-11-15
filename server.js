@@ -5,8 +5,7 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 
-const itemRoutes = require("./routes/items");
-const userRoutes = require("./routes/userRoute");
+const userRoute = require("./routes/userRoute");
 
 const port = process.env.PORT || 5000;
 console.log("current ENV: ", process.env.NODE_ENV);
@@ -28,7 +27,6 @@ app.use(cors());
 connectDB();
 
 // Use routes
-app.use("/api/items", itemRoutes);
-app.use("/user", userRoutes);
+app.use("/user", userRoute);
 
 app.listen(port, () => console.log(`server running on port ${port}`));

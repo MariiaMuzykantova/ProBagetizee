@@ -1,8 +1,10 @@
+import React, { useContext } from 'react'
+import {useHistory} from 'react-router-dom'
+import styled from 'styled-components'
+import UserContext from "../../context/userContext"
+
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import React, { useEffect } from 'react'
-import styled from 'styled-components'
-import test from '../../calls/config'
 
 const WhiteTextTypography = withStyles({
   root: {
@@ -28,36 +30,42 @@ const ProjectPanel = ({
   status,
   tags
 }) => (
-  <Panel>
-    <ProjectPanelItem>
-      <Typography variant="h6">{projectName}</Typography>
-      <Typography variant="ingress">{tags}</Typography>
-    </ProjectPanelItem>
+    <Panel>
+      <ProjectPanelItem>
+        <Typography variant="h6">{projectName}</Typography>
+        <Typography variant="ingress">{tags}</Typography>
+      </ProjectPanelItem>
 
-    <ProjectPanelItem>
-      <Typography variant="h6">
-        {tasksDone}/{tasksAmount}
-      </Typography>
-      <Typography variant="ingress">Tasks done</Typography>
-    </ProjectPanelItem>
+      <ProjectPanelItem>
+        <Typography variant="h6">
+          {tasksDone}/{tasksAmount}
+        </Typography>
+        <Typography variant="ingress">Tasks done</Typography>
+      </ProjectPanelItem>
 
-    <ProjectPanelItem>
-      <Typography variant="h6">{peopleAmout}</Typography>
-      <Typography variant="ingress">People</Typography>
-    </ProjectPanelItem>
+      <ProjectPanelItem>
+        <Typography variant="h6">{peopleAmout}</Typography>
+        <Typography variant="ingress">People</Typography>
+      </ProjectPanelItem>
 
-    <ProjectPanelItem>
-      <Typography variant="h6">{status}</Typography>
-      <Typography variant="ingress">Status</Typography>
-    </ProjectPanelItem>
-  </Panel>
-)
+      <ProjectPanelItem>
+        <Typography variant="h6">{status}</Typography>
+        <Typography variant="ingress">Status</Typography>
+      </ProjectPanelItem>
+    </Panel>
+  )
 
 const Projects = () => {
-  useEffect(() => {
-    console.log(test())
-
-  }, [])
+  const { userData, setUserData } = useContext(UserContext)
+  const history = useHistory()
+  const logout = () => {
+    setUserData({
+      token: undefined,
+      user: undefined
+    })
+    localStorage.setItem("auth-token", "")
+    history.push("/login")
+  }
   return (
     <MainWrapper>
       <LeftPanel>
@@ -74,6 +82,7 @@ const Projects = () => {
           <NavItem text="About" />
           <NavItem text="Contact list" />
           <NavItem text="Help" />
+          {userData.user && <button onClick={logout}>Log out</button>}
         </div>
       </LeftPanel>
 

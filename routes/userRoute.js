@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const User = require("../models/User");
+const User = require("../models/userModel");
 const auth = require("../middleware/auth");
 
 // @method  POST
@@ -75,8 +75,12 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.json({
       token,
-      user,
-    });
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      },
+    })
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,7 +95,7 @@ router.delete("/delete", auth, async (req, res) => {
   }
 });
 
-router.post("/tokenisvalid", async (req, res) => {
+router.post("/tokenIsValid", async (req, res) => {
   try {
     const token = req.header("x-auth-token");
     if (!token) {
@@ -114,5 +118,15 @@ router.post("/tokenisvalid", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get("/", auth, async (req, res) => {
+  const user = await User.findById(req.user)
+  res.json(
+    {
+      username: user.username,
+      id: user._id
+    }
+  )
+})
 
 module.exports = router;
