@@ -1,26 +1,30 @@
-import React, { useContext } from 'react'
-import {useHistory} from 'react-router-dom'
-import styled from 'styled-components'
-import UserContext from "../../context/userContext"
+import React, { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import UserContext from '../../context/userContext';
 
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles';
+import { Button, TextField, Typography } from '@material-ui/core';
+import createProject from '../../calls/project/createProject';
+import getProjectByUserId from '../../calls/project/getProjectsByUserId';
+import { useEffect } from 'react';
+import deleteProjectById from '../../calls/project/deleteProjectById';
 
 const WhiteTextTypography = withStyles({
   root: {
-    color: '#FFFFFF'
-  }
-})(Typography)
+    color: '#FFFFFF',
+  },
+})(Typography);
 
 const NavItem = ({ isActive, text }) => (
   <NavItemWrapper isActive={isActive}>
     <WhiteTextTypography variant="h6">{text}</WhiteTextTypography>
   </NavItemWrapper>
-)
+);
 
 const ProjectPanelItem = ({ children }) => (
   <div style={{ flex: 1 }}>{children}</div>
-)
+);
 
 const ProjectPanel = ({
   projectName,
@@ -28,44 +32,92 @@ const ProjectPanel = ({
   tasksDone,
   peopleAmout,
   status,
-  tags
+  tags,
+  onClick,
 }) => (
-    <Panel>
-      <ProjectPanelItem>
-        <Typography variant="h6">{projectName}</Typography>
-        <Typography variant="ingress">{tags}</Typography>
-      </ProjectPanelItem>
+  <Panel>
+    <ProjectPanelItem>
+      <Typography variant="h6">{projectName}</Typography>
+      <Typography variant="body1">{tags}</Typography>
+    </ProjectPanelItem>
 
-      <ProjectPanelItem>
-        <Typography variant="h6">
-          {tasksDone}/{tasksAmount}
-        </Typography>
-        <Typography variant="ingress">Tasks done</Typography>
-      </ProjectPanelItem>
+    <ProjectPanelItem>
+      <Typography variant="h6">
+        {tasksDone}/{tasksAmount}
+      </Typography>
+      <Typography variant="body1">Tasks done</Typography>
+    </ProjectPanelItem>
 
-      <ProjectPanelItem>
-        <Typography variant="h6">{peopleAmout}</Typography>
-        <Typography variant="ingress">People</Typography>
-      </ProjectPanelItem>
+    <ProjectPanelItem>
+      <Typography variant="h6">{peopleAmout}</Typography>
+      <Typography variant="body1">People</Typography>
+    </ProjectPanelItem>
 
-      <ProjectPanelItem>
-        <Typography variant="h6">{status}</Typography>
-        <Typography variant="ingress">Status</Typography>
-      </ProjectPanelItem>
-    </Panel>
-  )
+    <ProjectPanelItem>
+      <Typography variant="h6">{status}</Typography>
+      <Typography variant="body1">Status</Typography>
+    </ProjectPanelItem>
+
+    <CenterdVerticDiv>
+      <Button
+        size="small"
+        variant="outlined"
+        color="secondary"
+        onClick={onClick}
+      >
+        Delete
+      </Button>
+    </CenterdVerticDiv>
+  </Panel>
+);
 
 const Projects = () => {
-  const { userData, setUserData } = useContext(UserContext)
-  const history = useHistory()
+  const { userData, setUserData } = useContext(UserContext);
+  const history = useHistory();
+
+  const [projects, setProjects] = useState([]);
+  const [formData, setFormData] = useState({
+    title: '',
+  });
+
+  const submitProject = async () => {
+    const token = userData.token;
+    const title = formData.title;
+
+    await createProject({ title }, token);
+
+    const res = await getProjectByUserId(userData.token);
+    setProjects(res.data);
+  };
+
+  const deleteProject = async (projectId) => {
+    await deleteProjectById(projectId, userData.token);
+
+    const res = await getProjectByUserId(userData.token);
+    setProjects(res.data);
+  };
+
   const logout = () => {
     setUserData({
       token: undefined,
-      user: undefined
-    })
-    localStorage.setItem("auth-token", "")
-    history.push("/login")
-  }
+      user: undefined,
+    });
+
+    localStorage.setItem('auth-token', '');
+    history.push('/login');
+  };
+
+  useEffect(() => {
+    const getProjects = async () => {
+      const res = await getProjectByUserId(userData.token);
+      setProjects(res.data);
+    };
+
+    if (userData.user) {
+      getProjects();
+    }
+  }, [userData]);
+
   return (
     <MainWrapper>
       <LeftPanel>
@@ -86,70 +138,82 @@ const Projects = () => {
         </div>
       </LeftPanel>
 
-      <RightPanel>
+      <ContentArea>
         <Typography variant="h5">Your Projects</Typography>
 
         <Gutter />
 
-        <ProjectPanel
-          tags="Cottage"
-          projectName="Terrace"
-          tasksDone={5}
-          tasksAmount={9}
-          peopleAmout={7}
-          status="In progress"
-        />
+        {projects.map((item, i) => (
+          <ProjectPanel
+            key={i}
+            tags="tags"
+            projectName={item.title}
+            tasksDone={0}
+            tasksAmount={0}
+            peopleAmout={item.users.length}
+            status="status"
+            onClick={() => deleteProject(item._id)}
+          />
+        ))}
 
-        <ProjectPanel
-          projectName="Trip to Africa"
-          tasksDone={5}
-          tasksAmount={9}
-          peopleAmout={7}
-          status="In progress"
-        />
+        <Gutter />
 
-        <ProjectPanel
-          projectName="Fixing roof"
-          tasksDone={5}
-          tasksAmount={9}
-          peopleAmout={7}
-          status="In progress"
-        />
+        <Form>
+          <TextField
+            variant="outlined"
+            label="project title"
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
 
-        <ProjectPanel
-          projectName="School stuff"
-          tasksDone={5}
-          tasksAmount={9}
-          peopleAmout={7}
-          status="In progress"
-        />
+          <Gutter />
 
-      </RightPanel>
+          <Button
+            size="large"
+            variant="contained"
+            color="primary"
+            onClick={submitProject}
+          >
+            save
+          </Button>
+        </Form>
+      </ContentArea>
     </MainWrapper>
-  )
-}
+  );
+};
 
-export default Projects
+export default Projects;
+
+const CenterdVerticDiv = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Form = styled.form`
+  background-color: white;
+  padding: 20px;
+`;
 
 const MainWrapper = styled.div`
   display: flex;
   background-color: lightblue;
   height: 100vh;
   width: 100vw;
-`
+`;
 
 const LeftPanel = styled.div`
   background-color: #5b7cfd;
   padding-top: 40px;
   width: 250px;
-`
+`;
 
-const RightPanel = styled.div`
+const ContentArea = styled.div`
   background-color: #e7eef7;
   flex: 1;
   padding-left: 100px;
   padding-top: 40px;
-`
+`;
 
 const NavItemWrapper = styled.div`
   background-color: ${(props) => (props.isActive ? '#2854ff' : undefined)};
@@ -163,12 +227,12 @@ const NavItemWrapper = styled.div`
     background-color: #2854ff;
     cursor: pointer;
   }
-`
+`;
 
 const Gutter = styled.div`
   height: 50px;
   width: auto;
-`
+`;
 
 const Panel = styled.div`
   margin-bottom: 20px;
@@ -183,4 +247,4 @@ const Panel = styled.div`
   &:hover {
     cursor: pointer;
   }
-`
+`;

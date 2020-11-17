@@ -1,16 +1,17 @@
-import React, { useState, useContext } from 'react'
-import Axios from "axios"
-import { useHistory } from "react-router-dom"
-import UserContext from "../../context/userContext"
+import React, { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import UserContext from '../../context/userContext';
 
-import Alert from '@material-ui/lab/Alert'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import { makeStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
+import Alert from '@material-ui/lab/Alert';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import authenticateUser from '../../calls/user/authenticateUser';
+import registerUser from '../../calls/user/registerUser';
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -18,67 +19,66 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     maxWidth: '768px',
-    margin: '0 auto'
+    margin: '0 auto',
   },
   paper: {
     padding: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
       marginTop: theme.spacing(8),
-      padding: `${theme.spacing(6)}px ${theme.spacing(4)}px`
-    }
+      padding: `${theme.spacing(6)}px ${theme.spacing(4)}px`,
+    },
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
+    margin: theme.spacing(3, 0, 2),
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   buttonProgress: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     marginTop: -12,
-    marginLeft: -12
-  }
-}))
+    marginLeft: -12,
+  },
+}));
 
 const Register = () => {
-  const classes = useStyles({})
-  const history = useHistory()
+  const classes = useStyles({});
+  const history = useHistory();
   const [error, setError] = useState();
-  const { setUserData } = useContext(UserContext)
+  const { setUserData } = useContext(UserContext);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    passwordCheck: ''
-  })
-  const [submitting, setSubmitting] = React.useState(false)
+    passwordCheck: '',
+  });
+  const [submitting] = useState(false);
   const submit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const newUser = formData
-      await Axios.post(
-        "http://localhost:5000/user/register",
-        newUser
-      )
-      const loginRes = await Axios.post("http://localhost:5000/user/login", {
+      const newUser = formData;
+
+      await registerUser(newUser);
+
+      const loginRes = await authenticateUser({
         email: formData.email,
-        username: formData.username,
         password: formData.password,
-        passwordCheck: formData.passwordCheck
-      })
+      });
+
       setUserData({
         token: loginRes.data.token,
-        user: loginRes.data.user
-      })
-      localStorage.setItem("auth-token", loginRes.data.token)
-      history.push("/projects")
+        user: loginRes.data.user,
+      });
+
+      localStorage.setItem('auth-token', loginRes.data.token);
+      history.push('/projects');
     } catch (err) {
       err.response.data.message && setError(err.response.data.message);
     }
-  }
+  };
   return (
     <main className={classes.layout}>
       <Paper className={classes.paper} elevation={2}>
@@ -86,12 +86,15 @@ const Register = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          flexDirection="column">
+          flexDirection="column"
+        >
           <Typography component="h1" variant="h4" gutterBottom>
             Register
           </Typography>
         </Box>
+
         {error && <Alert severity="error">{error}</Alert>}
+
         <form method="post" className={classes.form} noValidate>
           <TextField
             margin="normal"
@@ -156,7 +159,8 @@ const Register = () => {
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={submit}>
+              onClick={submit}
+            >
               {submitting && (
                 <CircularProgress
                   size={24}
@@ -169,7 +173,7 @@ const Register = () => {
         </form>
       </Paper>
     </main>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

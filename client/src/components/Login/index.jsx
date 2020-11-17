@@ -1,77 +1,80 @@
-import React, { useState, useContext } from 'react'
-import UserContext from "../../context/userContext"
-import Axios from "axios"
-import { useHistory, Link } from 'react-router-dom'
+import React, { useState, useContext } from 'react';
+import UserContext from '../../context/userContext';
+import { useHistory, Link } from 'react-router-dom';
 
-import { makeStyles } from '@material-ui/core/styles'
-import Alert from '@material-ui/lab/Alert'
-import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import CssBaseline from '@material-ui/core/CssBaseline'
+import { makeStyles } from '@material-ui/core/styles';
+import Alert from '@material-ui/lab/Alert';
+import Button from '@material-ui/core/Button';
+import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
-import LandingPageGreating from '../LandingPageGreating'
+import LandingPageGreating from '../LandingPageGreating';
+import authenticateUser from '../../calls/user/authenticateUser';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
-    backgroundColor: '#5B7CFD'
+    backgroundColor: '#5B7CFD',
   },
   layout: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   paper: {
     padding: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
       marginTop: theme.spacing(8),
-      padding: `${theme.spacing(6)}px ${theme.spacing(4)}px`
-    }
+      padding: `${theme.spacing(6)}px ${theme.spacing(4)}px`,
+    },
   },
   submit: {
-    margin: theme.spacing(3, 0, 3)
+    margin: theme.spacing(3, 0, 3),
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   buttonProgress: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     marginTop: -12,
-    marginLeft: -12
-  }
-}))
+    marginLeft: -12,
+  },
+}));
 
 const SignInSide = () => {
-  const classes = useStyles({})
-  const [formData, setFormData] = React.useState({ email: '', password: '' })
+  const classes = useStyles({});
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState();
-  const [submitting, setSubmitting] = React.useState(false)
-  const { setUserData } = useContext(UserContext)
-  const history = useHistory()
+  const [submitting] = useState(false);
+  const { setUserData } = useContext(UserContext);
+  const history = useHistory();
 
   const submit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const loginUser = formData
-      const loginRes = await Axios.post("http://localhost:5000/user/login", loginUser)
+      const loginUserData = formData;
+      const loginRes = await authenticateUser(loginUserData);
+
       setUserData({
         token: loginRes.data.token,
-        user: loginRes.data.user
-      })
-      localStorage.setItem("auth-token", loginRes.data.token)
-      history.push("/projects")
+        user: loginRes.data.user,
+      });
+
+      localStorage.setItem('auth-token', loginRes.data.token);
+      history.push('/projects');
     } catch (err) {
       err.response.data.message && setError(err.response.data.message);
     }
-  }
+  };
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -84,7 +87,8 @@ const SignInSide = () => {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            flexDirection="column">
+            flexDirection="column"
+          >
             <Typography component="h1" variant="h4" gutterBottom>
               Login
             </Typography>
@@ -130,7 +134,8 @@ const SignInSide = () => {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                onClick={submit}>
+                onClick={submit}
+              >
                 {submitting && (
                   <CircularProgress
                     size={24}
@@ -154,7 +159,7 @@ const SignInSide = () => {
         </div>
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default SignInSide
+export default SignInSide;
