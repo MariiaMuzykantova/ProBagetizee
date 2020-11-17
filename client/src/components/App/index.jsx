@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import SignInSide from '../Login';
 import Projects from '../Projects';
 import Register from '../Register';
+import Profile from '../Profile';
 import UserContext from '../../context/userContext';
 import tokenIsValid from '../../calls/user/tokenIsValid';
 import getUserData from '../../calls/user/getUserData';
@@ -42,6 +43,10 @@ const App = () => {
         <Switch>
           <Route path="/login/">
             <SignInSide />
+          </Route>
+
+          <Route path="/profile/">
+            <Profile />
           </Route>
 
           <Route path="/register/">
