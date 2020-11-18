@@ -13,6 +13,11 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  status: {
+    type: String,
+    required: false,
+    default: 'In progress',
+  },
 });
 
 module.exports = Project = mongoose.model('projects', projectSchema);

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import UserContext from '../../context/userContext';
+import UserContext from '../../../context/userContext';
 
 import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
@@ -10,8 +10,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import authenticateUser from '../../calls/user/authenticateUser';
-import registerUser from '../../calls/user/registerUser';
+import authenticateUser from '../../../calls/user/authenticateUser';
+import registerUser from '../../../calls/user/registerUser';
 
 const useStyles = makeStyles((theme) => ({
   layout: {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import SignInSide from '../Login';
+import Login from '../Login';
 import Projects from '../Projects';
 import Register from '../Register';
 import Profile from '../Profile';
-import UserContext from '../../context/userContext';
-import tokenIsValid from '../../calls/user/tokenIsValid';
-import getUserData from '../../calls/user/getUserData';
+import UserContext from '../../../context/userContext';
+import tokenIsValid from '../../../calls/user/tokenIsValid';
+import getUserData from '../../../calls/user/getUserData';
 
 const App = () => {
   const [userData, setUserData] = useState({
@@ -42,7 +42,7 @@ const App = () => {
       <UserContext.Provider value={{ userData, setUserData }}>
         <Switch>
           <Route path="/login/">
-            <SignInSide />
+            <Login />
           </Route>
 
           <Route path="/profile/">

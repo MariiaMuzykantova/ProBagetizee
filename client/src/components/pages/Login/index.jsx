@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import UserContext from '../../context/userContext';
+import UserContext from '../../../context/userContext';
 import { useHistory, Link } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,8 +13,8 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-import LandingPageGreating from '../LandingPageGreating';
-import authenticateUser from '../../calls/user/authenticateUser';
+import LandingPageGreating from '../../LandingPageGreating';
+import authenticateUser from '../../../calls/user/authenticateUser';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignInSide = () => {
+const Login = () => {
   const classes = useStyles({});
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState();
@@ -162,4 +162,4 @@ const SignInSide = () => {
   );
 };
 
-export default SignInSide;
+export default Login;
