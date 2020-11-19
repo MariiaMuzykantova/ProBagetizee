@@ -12,7 +12,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 
 import pic from '../../../static/images/profile_pic.jpg';
-import MainSideNav from '../../MainSideNav/MainSideNav';
+import MainContentWrapper from '../../MainContentWrapper/MainContentWrapper';
 
 const useStyles = makeStyles({
   root: {
@@ -29,63 +29,45 @@ const Profile = () => {
   const classes = useStyles();
 
   return (
-    <MainWrapper>
-      <MainSideNav />
+    <MainContentWrapper>
+      <Typography variant="h5">Profile</Typography>
 
-      <ContentArea>
-        <Typography variant="h5">Profile</Typography>
-
-        <Gutter />
-        <Gutter />
-        <Card className={classes.root}>
-          <CardActionArea>
-            <CardMedia
-              className={classes.media}
-              image={pic}
-              title="Profile pic"
-            />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
-                {userData.user ? userData.user.username : undefined}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                My moto is to live life right here and now! :)
-              </Typography>
-              <Gutter />
-              <Gutter />
-              <Typography variant="body2" color="textSecondary" component="p">
-                <b>Email:</b> {userData.user ? userData.user.email : undefined}
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-          <CardActions>
-            <Button size="small" color="primary">
-              Edit
-            </Button>
-          </CardActions>
-        </Card>
-      </ContentArea>
-    </MainWrapper>
+      <Gutter />
+      <Gutter />
+      <Card className={classes.root}>
+        <CardActionArea>
+          <CardMedia
+            className={classes.media}
+            image={pic}
+            title="Profile pic"
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              {userData.user ? userData.user.username : undefined}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="p">
+              My moto is to live life right here and now! :)
+            </Typography>
+            <Gutter />
+            <Gutter />
+            <Typography variant="body2" color="textSecondary" component="p">
+              <b>Email:</b> {userData.user ? userData.user.email : undefined}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+        <CardActions>
+          <Button size="small" color="primary">
+            Edit
+          </Button>
+        </CardActions>
+      </Card>
+    </MainContentWrapper>
   );
 };
 
-const MainWrapper = styled.div`
-  display: flex;
-  background-color: lightblue;
-  height: 100vh;
-  width: 100vw;
-`;
-
-const ContentArea = styled.div`
-  background-color: #e7eef7;
-  flex: 1;
-  padding-left: 100px;
-  padding-top: 40px;
-`;
+export default Profile;
 
 const Gutter = styled.div`
   height: 50px;
   width: auto;
 `;
-
-export default Profile;

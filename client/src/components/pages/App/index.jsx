@@ -5,14 +5,18 @@ import Projects from '../Projects';
 import Register from '../Register';
 import Profile from '../Profile';
 import UserContext from '../../../context/userContext';
+import ProjectContext from '../../../context/projectContext';
 import tokenIsValid from '../../../calls/user/tokenIsValid';
 import getUserData from '../../../calls/user/getUserData';
+import ProjectPage from '../ProjectPage/ProjectPage';
 
 const App = () => {
   const [userData, setUserData] = useState({
     token: undefined,
     user: undefined,
   });
+
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -40,23 +44,29 @@ const App = () => {
   return (
     <Router>
       <UserContext.Provider value={{ userData, setUserData }}>
-        <Switch>
-          <Route path="/login/">
-            <Login />
-          </Route>
+        <ProjectContext.Provider value={{ projects, setProjects }}>
+          <Switch>
+            <Route path="/register/">
+              <Register />
+            </Route>
 
-          <Route path="/profile/">
-            <Profile />
-          </Route>
+            <Route path="/login/">
+              <Login />
+            </Route>
 
-          <Route path="/register/">
-            <Register />
-          </Route>
+            <Route path="/profile/">
+              <Profile />
+            </Route>
 
-          <Route path="/projects/">
-            <Projects />
-          </Route>
-        </Switch>
+            <Route path="/projects/">
+              <Projects />
+            </Route>
+
+            <Route path="/project/:id">
+              <ProjectPage />
+            </Route>
+          </Switch>
+        </ProjectContext.Provider>
       </UserContext.Provider>
     </Router>
   );

@@ -1,6 +1,6 @@
 import apiInstance from '../apiInstance';
 
-// @params projectData: {ownerId, title}, token: jtw token of the user
+// @params projectData: {username, email, title}, token: jtw token of the user
 const createProject = async (projectData, token) => {
   try {
     const res = await apiInstance.post('/projects/', projectData, {

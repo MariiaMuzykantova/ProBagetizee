@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { withStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
+import { Typography, withStyles } from '@material-ui/core';
 
 import UserContext from '../../context/userContext';
 
