@@ -6,7 +6,7 @@ import {
   withStyles,
 } from '@material-ui/core';
 import React, { useContext, useState, useEffect } from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AddIcon from '@material-ui/icons/Add';
 
@@ -17,6 +17,10 @@ import projectContext from '../../../context/projectContext';
 import getProjectByUserId from '../../../calls/project/getProjectsByUserId';
 import addUserToProject from '../../../calls/project/addUserToProject';
 import Alert from '@material-ui/lab/Alert';
+import getTasksOfProject from '../../../calls/task/getTasksOfProject';
+import createTask from '../../../calls/task/createTask';
+import deleteTask from '../../../calls/task/deleteTask';
+import updateTaskStatus from '../../../calls/task/updateTaskStatus';
 
 const WhiteTextTypography = withStyles({
   root: {
@@ -36,26 +40,77 @@ const BackToLink = ({ to }) => (
 
 const UserList = ({ users, onClick }) => (
   <UserListWrapper>
-    <Typography gutterBottom variant="h5">
-      Users
-    </Typography>
+    <BasicFlex>
+      <Typography variant="h5">Users</Typography>
+
+      <div style={{ height: '10px', width: '50px' }}></div>
+      <Button
+        size="small"
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={onClick}
+      >
+        Add user
+      </Button>
+    </BasicFlex>
+
+    <div style={{ height: '10px', width: '20px' }}></div>
+    <div style={{ height: '10px', width: '20px' }}></div>
+    <div style={{ height: '10px', width: '20px' }}></div>
 
     {users?.map((user, i) => (
       <Typography gutterBottom variant="body1" key={i}>
         {user}
       </Typography>
     ))}
-
-    <Button
-      size="small"
-      variant="contained"
-      color="primary"
-      startIcon={<AddIcon />}
-      onClick={onClick}
-    >
-      Add user
-    </Button>
   </UserListWrapper>
+);
+
+const TaskPanel = ({
+  title,
+  description,
+  onDelete,
+  onUpdateStatus,
+  status,
+  create_date,
+}) => (
+  <TaskWrapper status={status}>
+    <Typography variant="subtitle1">Status: {status}</Typography>
+
+    <Typography variant="subtitle2">Created: {create_date}</Typography>
+
+    <SmallGutter />
+
+    <Typography variant="h5">{title}</Typography>
+
+    <SmallGutter />
+
+    <Typography variant="body1">{description}</Typography>
+
+    <SmallGutter />
+    <SmallGutter />
+
+    <BasicFlex>
+      <Button
+        size="small"
+        variant="outlined"
+        color="primary"
+        onClick={onUpdateStatus}
+      >
+        Swap status
+      </Button>
+
+      <Button
+        size="small"
+        variant="outlined"
+        color="secondary"
+        onClick={onDelete}
+      >
+        Delete
+      </Button>
+    </BasicFlex>
+  </TaskWrapper>
 );
 
 const ProjectPage = () => {
@@ -63,16 +118,24 @@ const ProjectPage = () => {
   const { projects, setProjects } = useContext(projectContext);
   const { id } = useParams();
   const [modalIsOpen, setOpenModal] = useState(false);
-  const history = useHistory();
+  const [taskModalIsOpen, setOpenTaskModal] = useState(false);
   const [error, setError] = useState();
   const [formData, setFormData] = useState({
     email: '',
   });
 
+  const [taskFormData, setTaskFormData] = useState({
+    title: '',
+    description: '',
+  });
+
+  const [tasks, setTasks] = useState([]);
+
   const currentProject = projects.find((project) => project._id === id);
   const users = currentProject?.users.map((user) => user.username);
 
   const isValid = formData.email.length > 3;
+  const isTaskValid = taskFormData.title.length > 3;
 
   const openModal = () => {
     setOpenModal(true);
@@ -82,7 +145,15 @@ const ProjectPage = () => {
     setFormData({ email: '' });
   };
 
-  const submitProject = async () => {
+  const openTaskModal = () => {
+    setOpenTaskModal(true);
+  };
+  const closeTaskModal = () => {
+    setOpenTaskModal(false);
+    setTaskFormData({ title: '', description: '' });
+  };
+
+  const addUser = async () => {
     try {
       const data = {
         email: formData.email,
@@ -100,13 +171,54 @@ const ProjectPage = () => {
     }
   };
 
+  const addTask = async () => {
+    try {
+      const data = {
+        title: taskFormData.title,
+        description: taskFormData.description,
+        projectId: id,
+      };
+
+      await createTask(data, userData.token);
+
+      const res = await getTasksOfProject(id, userData.token);
+      setTasks(res.data);
+
+      closeTaskModal();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const updateTaskStatus1 = async (taskId) => {
+    await updateTaskStatus(taskId, userData.token);
+
+    const res = await getTasksOfProject(id, userData.token);
+    setTasks(res.data);
+  };
+
+  const deleteTask1 = async (taskId) => {
+    console.log('DELETE', taskId);
+    await deleteTask(taskId, userData.token);
+
+    const res = await getTasksOfProject(id, userData.token);
+    setTasks(res.data);
+  };
+
   useEffect(() => {
     const getProjects = async () => {
       const res = await getProjectByUserId(userData.token);
       setProjects(res.data);
     };
 
+    const getTasks = async () => {
+      const res = await getTasksOfProject(id, userData.token);
+
+      setTasks(res.data);
+    };
+
     if (userData.user) {
+      getTasks();
       getProjects();
     }
   }, [userData]);
@@ -147,7 +259,7 @@ const ProjectPage = () => {
               size="large"
               variant="contained"
               color="primary"
-              onClick={submitProject}
+              onClick={addUser}
             >
               Add
             </Button>
@@ -155,24 +267,125 @@ const ProjectPage = () => {
         </ModalDiv>
       </Modal>
 
-      <BasicFlex>
+      <Flextwo>
+        <div style={{ marginBottom: '500px', width: '350px' }}>
+          <BasicFlex>
+            <Typography variant="h5">Tasks</Typography>
+
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={openTaskModal}
+            >
+              Add task
+            </Button>
+          </BasicFlex>
+
+          <SmallGutter />
+          <SmallGutter />
+
+          {tasks?.map((task, i) => (
+            <TaskPanel
+              create_date={task.create_date}
+              status={task.status}
+              key={i}
+              title={task.title}
+              description={task.description}
+              onUpdateStatus={() => updateTaskStatus1(task._id)}
+              onDelete={(event) => {
+                event.stopPropagation();
+                deleteTask1(task._id);
+              }}
+            />
+          ))}
+        </div>
+
         <UserList onClick={openModal} users={users} />
-      </BasicFlex>
+      </Flextwo>
+
+      <Modal open={taskModalIsOpen} onClose={closeTaskModal}>
+        <ModalDiv>
+          <Form>
+            <Typography variant="body1" gutterBottom>
+              Please enter the title and description of the task
+            </Typography>
+
+            <TextField
+              margin="normal"
+              required={true}
+              variant="outlined"
+              fullWidth
+              label="Title"
+              onChange={(e) =>
+                setTaskFormData({ ...taskFormData, title: e.target.value })
+              }
+            />
+
+            <TextField
+              margin="normal"
+              fullWidth
+              required={false}
+              variant="outlined"
+              label="Description"
+              onChange={(e) =>
+                setTaskFormData({
+                  ...taskFormData,
+                  description: e.target.value,
+                })
+              }
+            />
+
+            <div style={{ width: '10px', height: '10px' }} />
+
+            <Button
+              disabled={!isTaskValid}
+              size="large"
+              variant="contained"
+              color="primary"
+              onClick={addTask}
+            >
+              Add
+            </Button>
+          </Form>
+        </ModalDiv>
+      </Modal>
     </MainContentWrapper>
   );
 };
 
 export default ProjectPage;
 
+const TaskWrapper = styled.div`
+  margin-bottom: 30px;
+  border-radius: 8px;
+  width: 300px;
+  background-color: ${(props) =>
+    props.status === 'Done' ? '#B4FFA8' : 'white'};
+  padding: 15px 25px;
+`;
+
 const UserListWrapper = styled.div`
   padding: 25px;
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: white;
+
+  margin: 0 auto;
+  margin-top: 50px;
+  align-self: flex-start;
 `;
 
 const BasicFlex = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  align-self: center;
+`;
+
+const Flextwo = styled.div`
+  display: flex;
+  align-items: top;
   justify-content: space-between;
   align-self: center;
 `;
@@ -205,4 +418,9 @@ const BackWrapper = styled.div`
   width: 68px;
   border-radius: 5px;
   background-color: #5b7cfd;
+`;
+
+const SmallGutter = styled.div`
+  height: 10px;
+  width: 10px;
 `;
