@@ -7,7 +7,9 @@ import UserContext from '../../../context/userContext';
 import deleteProjectById from '../../../calls/project/deleteProjectById';
 import createProject from '../../../calls/project/createProject';
 import getProjectByUserId from '../../../calls/project/getProjectsByUserId';
-import MainSideNav from '../../MainSideNav/MainSideNav';
+import MainContentWrapper from '../../MainContentWrapper/MainContentWrapper';
+import { useHistory } from 'react-router-dom';
+import projectContext from '../../../context/projectContext';
 
 const ProjectPanelItem = ({ children }) => (
   <div style={{ flex: 1 }}>{children}</div>
@@ -20,9 +22,10 @@ const ProjectPanel = ({
   peopleAmout,
   status,
   tags,
-  onClick,
+  onDelete,
+  onClickLink,
 }) => (
-  <Panel>
+  <Panel onClick={onClickLink}>
     <ProjectPanelItem>
       <Typography variant="h6">{projectName}</Typography>
       <Typography variant="body1">{tags}</Typography>
@@ -50,7 +53,7 @@ const ProjectPanel = ({
         size="small"
         variant="outlined"
         color="secondary"
-        onClick={onClick}
+        onClick={onDelete}
       >
         Delete
       </Button>
@@ -60,8 +63,9 @@ const ProjectPanel = ({
 
 const Projects = () => {
   const { userData } = useContext(UserContext);
+  const { projects, setProjects } = useContext(projectContext);
 
-  const [projects, setProjects] = useState([]);
+  const history = useHistory();
   const [formData, setFormData] = useState({
     title: '',
   });
@@ -83,7 +87,14 @@ const Projects = () => {
     const token = userData.token;
     const title = formData.title;
 
-    await createProject({ title }, token);
+    await createProject(
+      {
+        title: title,
+        email: userData.user.email,
+        username: userData.user.username,
+      },
+      token
+    );
 
     const res = await getProjectByUserId(userData.token);
     setProjects(res.data);
@@ -94,6 +105,10 @@ const Projects = () => {
 
     const res = await getProjectByUserId(userData.token);
     setProjects(res.data);
+  };
+
+  const goToProject = (id) => {
+    history.push(`/project/${id}`);
   };
 
   useEffect(() => {
@@ -108,87 +123,87 @@ const Projects = () => {
   }, [userData]);
 
   return (
-    <MainWrapper>
-      <MainSideNav />
+    <MainContentWrapper>
+      <BasicFlex>
+        <Typography variant="h5">Your Projects</Typography>
 
-      <ContentArea>
-        <BasicFlex>
-          <Typography variant="h5">Your Projects</Typography>
+        <Button
+          size="large"
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={openModal}
+        >
+          Create new project
+        </Button>
+      </BasicFlex>
 
-          <Button
-            size="large"
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={openModal}
-          >
-            Create new project
-          </Button>
-        </BasicFlex>
-
-        <Modal open={modalIsOpen} onClose={closeModal}>
-          <ModalDiv>
-            <Form>
-              <Typography variant="body1" gutterBottom>
-                Please enter the title for the project.
-              </Typography>
-
-              <Typography variant="body1" gutterBottom>
-                The title must be atleast 4 characters long
-              </Typography>
-
-              <TextField
-                margin="normal"
-                required={true}
-                variant="outlined"
-                label="Title of the project"
-                onChange={(e) => setFormData({ title: e.target.value })}
-              />
-
-              <div style={{ width: '10px', height: '10px' }} />
-
-              <Button
-                disabled={!isValid}
-                size="large"
-                variant="contained"
-                color="primary"
-                onClick={submitProject}
-              >
-                save
-              </Button>
-            </Form>
-          </ModalDiv>
-        </Modal>
-
-        <Gutter />
-
-        {projects.length === 0 ? (
-          <>
-            <Typography variant="h6" gutterBottom>
-              You dont have any projects yet. Please begin by creating a new one
-              or requesting access to some existing one.
+      <Modal open={modalIsOpen} onClose={closeModal}>
+        <ModalDiv>
+          <Form>
+            <Typography variant="body1" gutterBottom>
+              Please enter the title for the project.
             </Typography>
-          </>
-        ) : (
-          <>
-            {projects.map((item, i) => (
-              <ProjectPanel
-                key={i}
-                tags="tags"
-                projectName={item.title}
-                tasksDone={0}
-                tasksAmount={0}
-                peopleAmout={item.users.length}
-                status={item.status}
-                onClick={() => deleteProject(item._id)}
-              />
-            ))}
-          </>
-        )}
 
-        <Gutter />
-      </ContentArea>
-    </MainWrapper>
+            <Typography variant="body1" gutterBottom>
+              The title must be atleast 4 characters long
+            </Typography>
+
+            <TextField
+              margin="normal"
+              required={true}
+              variant="outlined"
+              label="Title of the project"
+              onChange={(e) => setFormData({ title: e.target.value })}
+            />
+
+            <div style={{ width: '10px', height: '10px' }} />
+
+            <Button
+              disabled={!isValid}
+              size="large"
+              variant="contained"
+              color="primary"
+              onClick={submitProject}
+            >
+              save
+            </Button>
+          </Form>
+        </ModalDiv>
+      </Modal>
+
+      <Gutter />
+
+      {projects.length === 0 ? (
+        <>
+          <Typography variant="h6" gutterBottom>
+            You dont have any projects yet. Please begin by creating a new one
+            or requesting access to some existing one.
+          </Typography>
+        </>
+      ) : (
+        <>
+          {projects.map((item, i) => (
+            <ProjectPanel
+              onClickLink={() => goToProject(item._id)}
+              key={i}
+              tags=""
+              projectName={item.title}
+              tasksDone={0}
+              tasksAmount={0}
+              peopleAmout={item.users.length}
+              status={item.status}
+              onDelete={(event) => {
+                event.stopPropagation();
+                deleteProject(item._id);
+              }}
+            />
+          ))}
+        </>
+      )}
+
+      <Gutter />
+    </MainContentWrapper>
   );
 };
 
@@ -218,22 +233,6 @@ const Form = styled.form`
   background-color: white;
   padding: 40px;
   border-radius: 6px;
-`;
-
-const MainWrapper = styled.div`
-  display: flex;
-  background-color: lightblue;
-  min-height: 100vh;
-  height: 100%;
-  width: 100%;
-`;
-
-const ContentArea = styled.div`
-  background-color: #e7eef7;
-  flex: 1;
-  padding-left: 100px;
-  padding-right: 100px;
-  padding-top: 40px;
 `;
 
 const Gutter = styled.div`
