@@ -33,4 +33,6 @@ app.use('/user', userRoute);
 app.use('/projects', projectRoute);
 app.use('/tasks', taskRoute);
 
+app.use(express.static('client/build'));
+
 app.listen(port, () => console.log(`server running on port ${port}`));

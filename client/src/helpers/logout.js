@@ -12,7 +12,7 @@ const logout = () => {
   });
 
   localStorage.setItem('auth-token', '');
-  history.push('/login');
+  history.push('/');
 
   return;
 };

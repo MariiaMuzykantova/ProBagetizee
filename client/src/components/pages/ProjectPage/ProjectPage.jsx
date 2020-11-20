@@ -198,7 +198,6 @@ const ProjectPage = () => {
   };
 
   const deleteTask1 = async (taskId) => {
-    console.log('DELETE', taskId);
     await deleteTask(taskId, userData.token);
 
     const res = await getTasksOfProject(id, userData.token);
@@ -221,7 +220,7 @@ const ProjectPage = () => {
       getTasks();
       getProjects();
     }
-  }, [userData]);
+  }, [userData, setProjects, id]);
 
   return (
     <MainContentWrapper>

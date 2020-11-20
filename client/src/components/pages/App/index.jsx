@@ -50,7 +50,7 @@ const App = () => {
               <Register />
             </Route>
 
-            <Route path="/login/">
+            <Route exact path="/">
               <Login />
             </Route>
 

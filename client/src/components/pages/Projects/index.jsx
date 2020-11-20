@@ -120,7 +120,7 @@ const Projects = () => {
     if (userData.user) {
       getProjects();
     }
-  }, [userData]);
+  }, [userData, setProjects]);
 
   return (
     <MainContentWrapper>

@@ -38,7 +38,7 @@ const MainSideNav = () => {
     });
 
     localStorage.setItem('auth-token', '');
-    history.push('/login');
+    history.push('/');
   };
   return (
     <MainWrapper>
